@@ -699,7 +699,7 @@ import React, { useEffect, useCallback, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import peer from "../service/peer";
 import { useSocket } from "../context/SocketProvider";
-import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff, ArrowLeft } from "lucide-react";
 
 const RoomPage = () => {
   const { roomId } = useParams();
@@ -850,48 +850,67 @@ const RoomPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 relative">
-      {/* Video container */}
-      <div className="flex-1 relative w-full h-full bg-black gap-4">
-        {remoteStream && (
-          <video
-            ref={(v) => v && (v.srcObject = remoteStream)}
-            autoPlay
-            playsInline
-            className="absolute top-0 left-0 w-full h-full object-cover"
-          />
-        )}
-
-        {myStream && (
-          <video
-            ref={(v) => v && (v.srcObject = myStream)}
-            autoPlay
-            muted
-            playsInline
-            className="absolute bottom-4 right-4 w-32 h-40 md:w-56 md:h-72 rounded-lg border border-gray-700 object-cover shadow-lg"
-          />
-        )}
-
-        {!remoteStream && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl">
-            Waiting for user...
-          </div>
-        )}
+    <div className="relative h-screen bg-gray-900 text-white">
+      {/* Main video container */}
+      <div className="relative w-full h-full md:flex md:flex-row">
+        {/* Remote Stream - Main video on mobile, side-by-side on desktop */}
+        <div className="w-full h-full md:w-1/2">
+          {remoteStream && (
+            <video
+              ref={(v) => v && (v.srcObject = remoteStream)}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          )}
+          {!remoteStream && (
+            <div className="flex items-center justify-center w-full h-full">
+              <span className="text-xl text-gray-400">Waiting for user...</span>
+            </div>
+          )}
+        </div>
+        
+        {/* My Stream - Small floating video on mobile, side-by-side on desktop */}
+        <div className="absolute top-4 right-4 md:static md:w-1/2 md:h-full z-10">
+          {myStream && (
+            <video
+              ref={(v) => v && (v.srcObject = myStream)}
+              autoPlay
+              muted
+              playsInline
+              className="w-28 h-40 rounded-lg border border-gray-700 object-cover shadow-lg md:w-full md:h-full md:rounded-none md:border-none md:shadow-none"
+            />
+          )}
+        </div>
       </div>
 
       {/* Control bar */}
-      <div className="absolute bottom-0 left-0 w-full flex justify-center items-center gap-6 p-4 bg-black/70">
-        <button onClick={toggleMic} className="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
-          {micOn ? <Mic /> : <MicOff className="text-red-500" />}
-        </button>
+      <div className="fixed bottom-0 left-0 w-full flex flex-col items-center p-4 bg-black/70 md:bg-transparent md:static md:flex-row md:justify-center md:gap-6 md:p-4">
+        {/* Mobile controls */}
+        <div className="md:hidden flex justify-around w-full">
+          <button onClick={toggleMic} className="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
+            {micOn ? <Mic /> : <MicOff className="text-red-500" />}
+          </button>
+          <button onClick={toggleCam} className="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
+            {camOn ? <Video /> : <VideoOff className="text-red-500" />}
+          </button>
+          <button onClick={handleDisconnect} className="p-3 rounded-full bg-red-600 hover:bg-red-500">
+            <PhoneOff />
+          </button>
+        </div>
 
-        <button onClick={toggleCam} className="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
-          {camOn ? <Video /> : <VideoOff className="text-red-500" />}
-        </button>
-
-        <button onClick={handleDisconnect} className="p-3 rounded-full bg-red-600 hover:bg-red-500">
-          <PhoneOff />
-        </button>
+        {/* Desktop controls */}
+        <div className="hidden md:flex justify-center items-center gap-6 p-4">
+          <button onClick={toggleMic} className="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
+            {micOn ? <Mic /> : <MicOff className="text-red-500" />}
+          </button>
+          <button onClick={toggleCam} className="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
+            {camOn ? <Video /> : <VideoOff className="text-red-500" />}
+          </button>
+          <button onClick={handleDisconnect} className="p-3 rounded-full bg-red-600 hover:bg-red-500">
+            <PhoneOff />
+          </button>
+        </div>
       </div>
     </div>
   );
